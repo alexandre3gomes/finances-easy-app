@@ -1,5 +1,4 @@
 import 'package:finances_easy_app/src/screens/auth_screen.dart';
-import 'package:finances_easy_app/src/screens/dashboard_screen.dart';
 import 'package:finances_easy_app/src/screens/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +12,10 @@ class MyApp extends StatelessWidget {
     return CupertinoApp(
       localizationsDelegates: [
         FlutterI18nDelegate(
-          translationLoader: NetworkFileTranslationLoader(
-            useCountryCode: false,
-            baseUri:
-                Uri.https('finances-easy-web.herokuapp.com', 'assets/i18n'),
+          translationLoader: FileTranslationLoader(
+              useCountryCode: false,
+              basePath: 'assets/i18n',
+              fallbackFile: 'assets/i18n/en.json'
           ),
         ),
       ],
