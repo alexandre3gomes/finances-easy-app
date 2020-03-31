@@ -1,12 +1,59 @@
-import 'package:finances_easy_app/src/screens/dashboard_screen.dart';
+import 'package:finances_easy_app/src/providers/auth_provider.dart';
 import 'package:finances_easy_app/src/screens/home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AuthScreen extends StatelessWidget {
+class AuthScreen extends StatefulWidget {
+  @override
+  _AuthScreenState createState() => _AuthScreenState();
+}
 
-   var _username = TextEditingController();
-   var _password = TextEditingController();
+class _AuthScreenState extends State<AuthScreen> {
+  final _username = TextEditingController();
+  final _password = TextEditingController();
+  var _isLoading = false;
+
+  Future<SharedPreferences>_getPrefs() async {
+    return await SharedPreferences.getInstance();
+  }
+
+  _showLoginError(BuildContext ctx, String message) {
+    showCupertinoDialog(
+      context: ctx,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: Text(FlutterI18n.translate(context, 'Error')),
+          content: Text(
+            FlutterI18n.translate(context, message),
+          ),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text(FlutterI18n.translate(context, 'Ok')),
+              onPressed: () => Navigator.of(context).pop(),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  _handleLogin(BuildContext ctx) async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await Provider.of<AuthProvider>(ctx, listen: false).login(_username.text, _password.text);
+      Navigator.pushNamed(ctx, HomeScreen.routeName);
+    } catch (exception) {
+      _showLoginError(ctx, exception.toString());
+    } finally {
+      setState(() {
+      _isLoading = false;
+    });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +61,7 @@ class AuthScreen extends StatelessWidget {
       resizeToAvoidBottomInset: true,
       navigationBar: CupertinoNavigationBar(
         middle: Text(
-          'Finances Easy',
+          FlutterI18n.translate(context, 'Finances Easy'),
           style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
         ),
       ),
@@ -23,21 +70,22 @@ class AuthScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              MediaQuery.of(context).viewInsets.bottom > 0 ? Container(padding: EdgeInsets.all(30),) :
               Container(
-                  padding: EdgeInsets.all(50),
-                  child: Image.asset('assets/images/logo.png'),
+                padding: EdgeInsets.all(50),
+                child: Image.asset('assets/images/logo.png'),
               ),
               Form(
                 child: Column(
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 30),
+                      padding: const EdgeInsets.only(
+                          left: 50, right: 50, bottom: 30),
                       child: CupertinoTextField(
                         controller: _username,
                         clearButtonMode: OverlayVisibilityMode.editing,
                         textInputAction: TextInputAction.done,
                         placeholder: FlutterI18n.translate(context, 'Username'),
+                        scrollPadding: EdgeInsets.only(bottom: 200),
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
@@ -49,12 +97,15 @@ class AuthScreen extends StatelessWidget {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 30),
+                      padding: const EdgeInsets.only(
+                          left: 50, right: 50, bottom: 30),
                       child: CupertinoTextField(
                         controller: _password,
                         clearButtonMode: OverlayVisibilityMode.editing,
                         textInputAction: TextInputAction.done,
+                        obscureText: true,
                         placeholder: FlutterI18n.translate(context, 'Password'),
+                        scrollPadding: EdgeInsets.only(bottom: 200),
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
@@ -67,14 +118,17 @@ class AuthScreen extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: CupertinoButton(
+                      child: _isLoading ? CupertinoActivityIndicator() : CupertinoButton(
                         borderRadius: BorderRadius.circular(8),
                         color: CupertinoColors.activeBlue,
                         child: Text(FlutterI18n.translate(context, 'Login')),
                         onPressed: () {
-                          print(_username.text);
-                          print(_password.text);
-                          Navigator.of(context).pushNamed(HomeScreen.routeName);
+                          if (_username.text.isEmpty ||
+                              _password.text.isEmpty) {
+                            _showLoginError(context, 'Invalid username/password');
+                          } else {
+                            _handleLogin(context);
+                          }
                         },
                       ),
                     ),

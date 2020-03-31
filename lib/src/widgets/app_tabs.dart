@@ -1,36 +1,34 @@
-
+import 'package:finances_easy_app/src/providers/dashboard_provider.dart';
 import 'package:finances_easy_app/src/screens/dashboard_screen.dart';
 import 'package:finances_easy_app/src/screens/expense_screen.dart';
 import 'package:finances_easy_app/src/screens/income_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:provider/provider.dart';
 
 class AppTabsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.home),
-            title: Text('Dashboard'),
+            icon: Icon(Icons.show_chart),
+            title: Text(FlutterI18n.translate(context, 'Dashboard')),
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.search),
-            title: Text('Income'),
+            icon: Icon(Icons.monetization_on),
+            title: Text(FlutterI18n.translate(context, 'Incomes')),
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.search),
-            title: Text('Income'),
+            icon: Icon(Icons.money_off),
+            title: Text(FlutterI18n.translate(context, 'Expenses')),
           ),
         ],
       ),
       tabBuilder: (context, index) {
         switch (index) {
-          case 0:
-            return CupertinoTabView(builder: (context) {
-              return DashboardScreen();
-            });
           case 1:
             return CupertinoTabView(builder: (context) {
               return IncomeScreen();
@@ -41,7 +39,12 @@ class AppTabsWidget extends StatelessWidget {
             });
           default:
             return CupertinoTabView(builder: (context) {
-              return DashboardScreen();
+              return MultiProvider(
+                providers: [
+                  ChangeNotifierProvider<DashboardProvider>(create: (context) => DashboardProvider())
+                ],
+                child: DashboardScreen(),
+              );
             });
         }
       },

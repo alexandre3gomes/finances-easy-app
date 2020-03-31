@@ -7,9 +7,10 @@ class User {
   int id;
   String name;
   String username;
+  String password;
   String token;
 
-  User({this.id, this.name, this.username, this.token});
+  User({this.id, this.name, this.username, this.password, this.token});
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
