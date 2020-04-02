@@ -30,12 +30,7 @@ class MyApp extends StatelessWidget {
         ],
         title: 'Finances Easy',
         theme: CupertinoThemeData(
-          textTheme: CupertinoTextThemeData(
-            navLargeTitleTextStyle: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-            ),
-          ),
+          brightness: Brightness.light
         ),
         home: Consumer<AuthProvider>(builder: (context, auth, _) {
           return auth.isAuthenticate
@@ -55,6 +50,7 @@ class MyApp extends StatelessWidget {
         }),
         routes: {
           HomeScreen.routeName: (context) => HomeScreen(),
+          AuthScreen.routeName: (context) => AuthScreen(),
         },
       ),
     );

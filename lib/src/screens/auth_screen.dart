@@ -6,6 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthScreen extends StatefulWidget {
+
+  static final String routeName = '/auth';
+
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }

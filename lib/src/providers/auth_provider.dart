@@ -1,11 +1,11 @@
 import 'package:finances_easy_app/src/models/user.dart';
-import 'package:finances_easy_app/src/services/user_service.dart';
+import 'package:finances_easy_app/src/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
 
-  UserService _userService = UserService();
+  UserService _authService = UserService();
 
   User _loggedUser;
 
@@ -16,7 +16,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> login(String username, String password) async {
     final prefs = await SharedPreferences.getInstance();
     try {
-      _loggedUser = await _userService.login(
+      _loggedUser = await _authService.login(
           User(username: username, password: password, name: '', token: ''));
       prefs.setString('token', loggedUser.token);
     } catch (exception) {
@@ -29,15 +29,19 @@ class AuthProvider extends ChangeNotifier {
     if(!prefs.containsKey('token')) {
       return false;
     }
-    _loggedUser = await _userService.getCurrentUser();
+    _loggedUser = await _authService.getCurrentUser();
     notifyListeners();
     return true;
   }
 
-  Future<void> logout() async {
+  Future<bool> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    _loggedUser = null;
-    prefs.clear();
+    final success = await _authService.logout();
+    if(success) {
+      prefs.clear();
+      _loggedUser = null;
+    }
+    return success;
   }
 
 }
